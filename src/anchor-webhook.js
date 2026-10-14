@@ -1,6 +1,6 @@
-import { HttpCaller } from '@atc-web/service-core/http';
+import { HttpCaller } from '@atc-web/atc-service-core/http';
 
-/** @typedef {import('@atc-web/service-core/http').NetGuard} NetGuard */
+/** @typedef {import('@atc-web/atc-service-core/http').NetGuard} NetGuard */
 
 /**
  * Posts a written anchor to an operator-configured external URL, best-effort. This is *a* copy

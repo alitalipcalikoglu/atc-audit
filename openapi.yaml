@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: audit
+  title: atc-audit
   version: 1.1.0
   description: >-
     Central append-only audit log. Services push events over HTTP; the log keeps a
@@ -31,7 +31,7 @@ tags:
 paths:
   /openapi.yaml:
     get:
-      operationId: audit.openapi
+      operationId: atc-audit.openapi
       summary: Download the canonical OpenAPI document
       description: Returns this service's repository-root OpenAPI 3.1 document byte-for-byte.
       security: []
@@ -44,7 +44,7 @@ paths:
 
   /health:
     get:
-      operationId: audit.health.get
+      operationId: atc-audit.health.get
       tags: [operational]
       summary: Liveness probe.
       description: Always returns `200` once the process is up. No dependency check.
@@ -60,7 +60,7 @@ paths:
 
   /ready:
     get:
-      operationId: audit.ready.get
+      operationId: atc-audit.ready.get
       tags: [operational]
       summary: Readiness probe.
       description: >-
@@ -83,7 +83,7 @@ paths:
 
   /v1/info:
     get:
-      operationId: audit.info.get
+      operationId: atc-audit.info.get
       tags: [operational]
       summary: Service identity and capabilities.
       description: >-
@@ -104,7 +104,7 @@ paths:
 
   /.well-known/audit-anchor-key:
     get:
-      operationId: audit.anchorKey.get
+      operationId: atc-audit.anchorKey.get
       tags: [chain]
       summary: Current (and previous) anchor-signing public key.
       description: >-
@@ -135,7 +135,7 @@ paths:
 
   /metrics:
     get:
-      operationId: audit.metrics.get
+      operationId: atc-audit.metrics.get
       tags: [operational]
       summary: Prometheus text-format metrics.
       description: Authenticated (`read`), not subject to the `/v1` rate limiter.
@@ -155,7 +155,7 @@ paths:
 
   /v1/events:
     post:
-      operationId: audit.events.create
+      operationId: atc-audit.events.create
       tags: [events]
       summary: Ingest one event.
       description: >-
@@ -225,7 +225,7 @@ paths:
           $ref: '#/components/responses/RateLimited'
 
     get:
-      operationId: audit.events.list
+      operationId: atc-audit.events.list
       tags: [events]
       summary: List events, newest first.
       description: Keyset pagination via `cursor`/`nextCursor` (opaque, base64url `at:seq`).
@@ -270,7 +270,7 @@ paths:
 
   /v1/events/batch:
     post:
-      operationId: audit.events.createBatch
+      operationId: atc-audit.events.createBatch
       tags: [events]
       summary: Ingest up to 5000 events in one call.
       description: >-
@@ -319,7 +319,7 @@ paths:
 
   /v1/events/export:
     get:
-      operationId: audit.events.export
+      operationId: atc-audit.events.export
       tags: [events]
       summary: Stream matching events as NDJSON or CSV.
       description: >-
@@ -380,7 +380,7 @@ paths:
 
   /v1/events/{id}:
     get:
-      operationId: audit.events.get
+      operationId: atc-audit.events.get
       tags: [events]
       summary: Fetch one event by id.
       x-required-role: read
@@ -415,7 +415,7 @@ paths:
 
   /v1/chain/head:
     get:
-      operationId: audit.chain.getHead
+      operationId: atc-audit.chain.getHead
       tags: [chain]
       summary: Current chain head.
       description: >-
@@ -438,7 +438,7 @@ paths:
 
   /v1/chain/verify:
     get:
-      operationId: audit.chain.verify
+      operationId: atc-audit.chain.verify
       tags: [chain]
       summary: Recompute and verify the hash chain over a sequence range.
       description: >-
@@ -478,7 +478,7 @@ paths:
 
   /v1/chain/anchors:
     get:
-      operationId: audit.anchors.list
+      operationId: atc-audit.anchors.list
       tags: [chain]
       summary: List signed chain anchors, newest first.
       description: Keyset pagination via `beforeSeq`/`nextBeforeSeq`.
@@ -502,7 +502,7 @@ paths:
 
   /v1/chain/anchors/latest:
     get:
-      operationId: audit.anchors.getLatest
+      operationId: atc-audit.anchors.getLatest
       tags: [chain]
       summary: Most recently written anchor.
       x-required-role: read
@@ -535,7 +535,7 @@ paths:
 
   /v1/stats:
     get:
-      operationId: audit.stats.get
+      operationId: atc-audit.stats.get
       tags: [stats]
       summary: Aggregate counters over a trailing time window.
       x-required-role: read
@@ -581,8 +581,8 @@ components:
     ActionPrefixFilter:
       name: actionPrefix
       in: query
-      description: Prefix match on `action` (e.g. `auth.` matches `auth.login`, `auth.logout`).
-      schema: { type: string, pattern: '^[a-z0-9]+(\.[a-z0-9_-]*){0,5}$', maxLength: 120 }
+      description: Prefix match on `action` (e.g. `auth.` matches `atc-auth.login`, `atc-auth.logout`).
+      schema: { type: string, pattern: '^[a-z0-9][a-z0-9-]*(\.[a-z0-9_-]*){0,5}$', maxLength: 120 }
     OutcomeFilter:
       name: outcome
       in: query
@@ -759,7 +759,7 @@ components:
           description: Current SQLite `PRAGMA user_version` for this instance's database.
         serviceCore:
           type: string
-          description: Installed `@atc-web/service-core` version.
+          description: Installed `@atc-web/atc-service-core` version.
 
     AnchorKeyInfo:
       type: object
@@ -785,9 +785,9 @@ components:
 
     Action:
       type: string
-      pattern: '^[a-z0-9]+(\.[a-z0-9_-]+){1,5}$'
+      pattern: '^[a-z0-9][a-z0-9-]*(\.[a-z0-9_-]+){1,5}$'
       maxLength: 120
-      description: 'Dotted, lower-case: `auth.login`, `order.item.remove`.'
+      description: 'Dotted, lower-case: `atc-auth.login`, `order.item.remove`.'
 
     Outcome:
       type: string

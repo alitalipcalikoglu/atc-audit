@@ -1,8 +1,8 @@
 /** JSON Schemas for the HTTP surface. */
 export class Schemas {
   static uuid = { type: 'string', format: 'uuid' };
-  /** Dotted, lower-case: `auth.login`, `order.item.remove`. */
-  static action = { type: 'string', pattern: '^[a-z0-9]+(\\.[a-z0-9_-]+){1,5}$', maxLength: 120 };
+  /** Dotted, lower-case: `atc-auth.login`, `order.item.remove`. */
+  static action = { type: 'string', pattern: '^[a-z0-9][a-z0-9-]*(\\.[a-z0-9_-]+){1,5}$', maxLength: 120 };
   static outcome = { type: 'string', enum: ['success', 'failure', 'denied'] };
   static kind = { type: 'string', pattern: '^[a-z][a-z0-9_-]{0,31}$' };
   static shortId = { type: 'string', minLength: 1, maxLength: 128 };
@@ -39,7 +39,7 @@ export class Schemas {
   static filter = {
     source: { type: 'string', pattern: '^[A-Za-z0-9_-]{1,64}$' },
     action: Schemas.action,
-    actionPrefix: { type: 'string', pattern: '^[a-z0-9]+(\\.[a-z0-9_-]*){0,5}$', maxLength: 120 },
+    actionPrefix: { type: 'string', pattern: '^[a-z0-9][a-z0-9-]*(\\.[a-z0-9_-]*){0,5}$', maxLength: 120 },
     outcome: Schemas.outcome,
     actorType: Schemas.kind,
     actorId: Schemas.shortId,

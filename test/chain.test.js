@@ -59,14 +59,14 @@ test('EventStore: filters, prefix range and keyset paging', () => {
   const store = new EventStore(memoryDb());
   const t0 = 1_700_000_000_000;
   store.append([
-    record({ action: 'auth.login', at: t0 + 1, actor: { type: 'user', id: 'u1' }, outcome: 'failure' }),
-    record({ action: 'auth.login', at: t0 + 2, actor: { type: 'user', id: 'u2' } }),
-    record({ action: 'auth.logout', at: t0 + 2, actor: { type: 'user', id: 'u1' } }),
+    record({ action: 'atc-auth.login', at: t0 + 1, actor: { type: 'user', id: 'u1' }, outcome: 'failure' }),
+    record({ action: 'atc-auth.login', at: t0 + 2, actor: { type: 'user', id: 'u2' } }),
+    record({ action: 'atc-auth.logout', at: t0 + 2, actor: { type: 'user', id: 'u1' } }),
     record({ action: 'authz.deny', at: t0 + 3, outcome: 'denied', actor: { type: 'service', id: 's1' } }),
     record({ action: 'order.create', at: t0 + 4, source: 'shop', actor: null, target: { type: 'order', id: 'o9' } }),
   ]);
-  assert.equal(store.count({ actionPrefix: 'auth.' }), 3);
-  assert.equal(store.count({ action: 'auth.login' }), 2);
+  assert.equal(store.count({ actionPrefix: 'atc-auth.' }), 3);
+  assert.equal(store.count({ action: 'atc-auth.login' }), 2);
   assert.equal(store.count({ actorId: 'u1' }), 2);
   assert.equal(store.count({ outcome: 'denied' }), 1);
   assert.equal(store.count({ targetType: 'order', targetId: 'o9' }), 1);
@@ -76,23 +76,23 @@ test('EventStore: filters, prefix range and keyset paging', () => {
   assert.deepEqual(page1.map((r) => r.action), ['order.create', 'authz.deny']);
   const last = page1[1];
   const page2 = store.list({}, { limit: 2, before: { at: last.at, seq: last.seq } });
-  assert.deepEqual(page2.map((r) => r.action), ['auth.logout', 'auth.login']);
+  assert.deepEqual(page2.map((r) => r.action), ['atc-auth.logout', 'atc-auth.login']);
   const page3 = store.list({}, { limit: 2, before: { at: page2[1].at, seq: page2[1].seq } });
-  assert.deepEqual(page3.map((r) => r.action), ['auth.login']);
-  assert.deepEqual([...store.iterate({ actionPrefix: 'auth.' }, 2)].map((r) => r.action), ['auth.login', 'auth.login']);
+  assert.deepEqual(page3.map((r) => r.action), ['atc-auth.login']);
+  assert.deepEqual([...store.iterate({ actionPrefix: 'atc-auth.' }, 2)].map((r) => r.action), ['atc-auth.login', 'atc-auth.login']);
 });
 
 test('EventStore: two concurrent iterate() calls with the same filter do not interfere', () => {
   const store = new EventStore(memoryDb());
   const t0 = 1_700_000_000_000;
-  store.append(Array.from({ length: 5 }, (_, i) => record({ action: 'auth.login', at: t0 + i })));
+  store.append(Array.from({ length: 5 }, (_, i) => record({ action: 'atc-auth.login', at: t0 + i })));
   // Interleave step-by-step, as two simultaneous exports streaming to two HTTP responses would:
   // iterator A pulls one row, then B starts and pulls a row, then A resumes, etc. Before the fix
   // both iterators shared one cached StatementSync, so starting B rewound A's cursor.
-  const a = store.iterate({ actionPrefix: 'auth.' }, 10);
+  const a = store.iterate({ actionPrefix: 'atc-auth.' }, 10);
   const first = a.next();
   assert.equal(first.value?.at, t0);
-  const b = store.iterate({ actionPrefix: 'auth.' }, 10);
+  const b = store.iterate({ actionPrefix: 'atc-auth.' }, 10);
   const aRest = [...a].map((r) => r.at);
   const bAll = [...b].map((r) => r.at);
   assert.deepEqual(aRest, [t0 + 1, t0 + 2, t0 + 3, t0 + 4], "A's cursor is unaffected by B starting mid-stream");

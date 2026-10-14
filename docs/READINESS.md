@@ -102,7 +102,7 @@ target vocabulary this does not yet fully emit (`service`, `version`).
 
 Accepts an inbound `X-Request-Id` unconditionally (internal service, reached only from other
 services on a private network — see OBSERVABILITY.md's trust-boundary discussion). Also parses an
-inbound `traceparent` via `@atc-web/service-core`'s `registerRequestContext`, trust-gated on
+inbound `traceparent` via `@atc-web/atc-service-core`'s `registerRequestContext`, trust-gated on
 `TRUST_PROXY` (same boundary): trusted, the caller's trace-id is continued with a fresh span-id;
 untrusted or malformed, a fresh trace is started. Both `traceId`/`spanId` are logged on every
 request line. The anchor webhook push (when configured) does not carry one either — it posts a

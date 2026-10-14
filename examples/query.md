@@ -26,7 +26,7 @@ All filters combine with AND.
 | Parameter | Matches |
 |---|---|
 | `source` | Key id that wrote the event: `source=auth` |
-| `action` | Exact: `action=auth.login` |
+| `action` | Exact: `action=atc-auth.login` |
 | `actionPrefix` | Everything under a namespace: `actionPrefix=auth.` (indexed range scan, not a LIKE) |
 | `outcome` | `success`, `failure`, `denied` |
 | `actorType`, `actorId` | Who did it |
@@ -44,8 +44,8 @@ rcurl "$AUDIT/v1/events?actorType=user&actorId=u7&from=$(date -u +%Y-%m-%dT00:00
 Every failed or denied login in the last hour:
 
 ```bash
-rcurl "$AUDIT/v1/events?action=auth.login&outcome=failure&from=$(date -u -v-1H +%Y-%m-%dT%H:%M:%SZ)"
-rcurl "$AUDIT/v1/events?action=auth.login&outcome=denied&from=…"
+rcurl "$AUDIT/v1/events?action=atc-auth.login&outcome=failure&from=$(date -u -v-1H +%Y-%m-%dT%H:%M:%SZ)"
+rcurl "$AUDIT/v1/events?action=atc-auth.login&outcome=denied&from=…"
 ```
 
 History of one object across services:

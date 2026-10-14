@@ -1,6 +1,6 @@
-import { readServiceVersion } from '@atc-web/service-core/fastify';
-import { NetGuard } from '@atc-web/service-core/http';
-import { Lifecycle } from '@atc-web/service-core/lifecycle';
+import { readServiceVersion } from '@atc-web/atc-service-core/fastify';
+import { NetGuard } from '@atc-web/atc-service-core/http';
+import { Lifecycle } from '@atc-web/atc-service-core/lifecycle';
 import { AnchorWebhook } from './anchor-webhook.js';
 import { Anchorer } from './anchorer.js';
 import { Config } from './config.js';

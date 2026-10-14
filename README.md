@@ -1,4 +1,4 @@
-# audit
+# atc-audit
 
 Central audit log for a set of services: every service pushes "who did what to which object" events over HTTP, the log stores them append-only behind a tamper-evident hash chain, and offers filtered queries, streaming export, verification, statistics and retention.
 
@@ -36,7 +36,7 @@ npm run typecheck
 
 ## Model
 
-- **An event** is `action` (`auth.login`, `order.create`), `outcome` (`success`/`failure`/`denied`), `actor` and `target` (`{ type, id, name? }`), `ip`, `userAgent`, `requestId`, free-form `meta`, and `at`. The service adds `source`, `seq`, `receivedAt`, `prevHash`, `hash`.
+- **An event** is `action` (`atc-auth.login`, `order.create`), `outcome` (`success`/`failure`/`denied`), `actor` and `target` (`{ type, id, name? }`), `ip`, `userAgent`, `requestId`, free-form `meta`, and `at`. The service adds `source`, `seq`, `receivedAt`, `prevHash`, `hash`.
 - **Source is the key.** Callers authenticate with `Authorization: Bearer <secret>` from `AUDIT_API_KEYS`; the key's id is recorded as `source`. A caller cannot write events under another service's name.
 - **Roles.** Keys are `write` (producers), `read` (dashboards, exporters) or `readwrite`.
 - **Hash chain.** `hash = SHA-256(prevHash + "\n" + canonical JSON of the event)`. Editing, removing or reordering a stored event breaks every later hash; `GET /v1/chain/verify` recomputes and reports the first broken position.
@@ -204,7 +204,7 @@ tested for.
 Accepts an inbound `X-Request-Id` unconditionally (an internal service, reached only from other
 services) and logs it via Fastify's default request logging. Also parses an inbound `traceparent`,
 trusted only when `TRUST_PROXY=true` — the caller's trace-id is continued with a fresh span-id for
-this hop, both logged as `traceId`/`spanId` via `@atc-web/service-core`'s `registerRequestContext`.
+this hop, both logged as `traceId`/`spanId` via `@atc-web/atc-service-core`'s `registerRequestContext`.
 The one outbound call this service can make — `ANCHOR_WEBHOOK_URL`, when configured — does not
 carry a trace header either, since it posts a signed anchor record to an external, operator-configured
 target, not a request being proxied (proven by a security-regression test — see

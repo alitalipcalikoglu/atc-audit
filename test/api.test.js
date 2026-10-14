@@ -35,7 +35,7 @@ test('API: ingest single event, source from key, redaction, idempotency', async 
   t.after(() => app.close());
   const body = {
     id: '6f1c7d2e-1111-4222-8333-444455556666',
-    action: 'auth.login',
+    action: 'atc-auth.login',
     outcome: 'failure',
     actor: { type: 'user', id: 'u1', name: 'Ada' },
     target: { type: 'session', id: 's1' },
@@ -105,7 +105,7 @@ test('API: batch, list with filters and cursor, export', async (t) => {
   t.after(() => app.close());
   const events = [];
   for (let i = 0; i < 5; i++) {
-    events.push({ id: `00000000-0000-4000-8000-00000000000${i}`, action: i < 3 ? 'auth.login' : 'order.create', outcome: i === 1 ? 'failure' : 'success', actor: { type: 'user', id: `u${i % 2}` }, at: new Date(1_700_000_000_000 + i * 1000).toISOString() });
+    events.push({ id: `00000000-0000-4000-8000-00000000000${i}`, action: i < 3 ? 'atc-auth.login' : 'order.create', outcome: i === 1 ? 'failure' : 'success', actor: { type: 'user', id: `u${i % 2}` }, at: new Date(1_700_000_000_000 + i * 1000).toISOString() });
   }
   events.push({ ...events[0] }); // duplicate inside the batch
   const batch = await app.inject({ method: 'POST', url: '/v1/events/batch', headers: bearer(RW_KEY), payload: { events } });
@@ -125,7 +125,7 @@ test('API: batch, list with filters and cursor, export', async (t) => {
   assert.deepEqual(page.items.map((/** @type {any} */ e) => e.seq), [1]);
   assert.equal(page.nextCursor, null);
 
-  assert.equal((await list('actionPrefix=auth.')).items.length, 3);
+  assert.equal((await list('actionPrefix=atc-auth.')).items.length, 3);
   assert.equal((await list('action=order.create')).items.length, 2);
   assert.equal((await list('outcome=failure')).items.length, 1);
   assert.equal((await list('actorId=u1')).items.length, 2);
@@ -133,7 +133,7 @@ test('API: batch, list with filters and cursor, export', async (t) => {
   assert.equal((await list('source=worker')).items.length, 0);
   assert.equal((await list(`from=${events[1].at}&to=${events[3].at}`)).items.length, 2);
 
-  const nd = await app.inject({ url: '/v1/events/export?actionPrefix=auth.', headers: bearer(READ_KEY) });
+  const nd = await app.inject({ url: '/v1/events/export?actionPrefix=atc-auth.', headers: bearer(READ_KEY) });
   assert.equal(nd.statusCode, 200);
   assert.match(String(nd.headers['content-type']), /x-ndjson/);
   assert.match(String(nd.headers['content-disposition']), /attachment; filename="audit-.*\.ndjson"/);
@@ -145,7 +145,7 @@ test('API: batch, list with filters and cursor, export', async (t) => {
   const rows = csv.body.trim().split('\n');
   assert.equal(rows.length, 2);
   assert.ok(rows[0].startsWith('seq,id,at,receivedAt,source,action,outcome'));
-  assert.match(rows[1], /^2,[0-9a-f-]{36},2023-11-14T22:13:21\.000Z,.*,shop,auth\.login,failure,user,u1,,/);
+  assert.match(rows[1], /^2,[0-9a-f-]{36},2023-11-14T22:13:21\.000Z,.*,shop,atc-auth\.login,failure,user,u1,,/);
 });
 
 test('API: chain head, verify, tamper detection', async (t) => {
@@ -201,7 +201,7 @@ test('API: info', async (t) => {
   const { app } = await buildApp();
   t.after(() => app.close());
   const info = json(await app.inject({ url: '/v1/info' }));
-  assert.equal(info.service, 'audit');
+  assert.equal(info.service, 'atc-audit');
   assert.equal(info.version, AUDIT_VERSION);
   assert.equal(info.apiVersion, 'v1');
   assert.deepEqual(info.capabilities, ['chain-verification', 'anchors', 'export']);

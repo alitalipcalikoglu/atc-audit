@@ -39,7 +39,7 @@ wcurl -X POST $AUDIT/v1/events -d '{
 
 | Field | Rule |
 |---|---|
-| `action` | Lower-case dotted path, 2–6 segments: `auth.login`, `order.item.remove`. Use `<object>.<verb>`; keep the vocabulary small and stable, dashboards group by it. |
+| `action` | Lower-case dotted path, 2–6 segments: `atc-auth.login`, `order.item.remove`. Use `<object>.<verb>`; keep the vocabulary small and stable, dashboards group by it. |
 | `outcome` | `success` (default), `failure` (tried and failed), `denied` (not allowed to try). |
 | `actor` / `target` | `{ type, id, name? }`. `type` is a short lower-case kind (`user`, `admin`, `service`, `system`, `order`). `id` up to 128 chars. |
 | `ip` | Must be a valid IPv4/IPv6 address; forward the end user's address from your own request, not your server's. |
@@ -61,7 +61,7 @@ wcurl -X POST $AUDIT/v1/events -d '{
 Values under keys such as `password`, `token`, `secret`, `authorization`, `cookie`, `apiKey`, `cardNumber`, `cvv`, `iban`, `ssn` are replaced with `"[REDACTED]"` anywhere inside `meta`, before hashing and storage. Matching ignores case, `_` and `-`.
 
 ```bash
-wcurl -X POST $AUDIT/v1/events -d '{"action":"auth.login","outcome":"failure","meta":{"email":"a@b.c","password":"hunter2","headers":{"Authorization":"Bearer x"}}}'
+wcurl -X POST $AUDIT/v1/events -d '{"action":"atc-auth.login","outcome":"failure","meta":{"email":"a@b.c","password":"hunter2","headers":{"Authorization":"Bearer x"}}}'
 ```
 
 → `"meta": { "email": "a@b.c", "headers": { "Authorization": "[REDACTED]" }, "password": "[REDACTED]" }`

@@ -5,7 +5,7 @@ import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { NetGuard } from '@atc-web/service-core/http';
+import { NetGuard } from '@atc-web/atc-service-core/http';
 import { AnchorKeyGenerator } from '../scripts/anchor-keygen.js';
 import { AnchorWebhook } from '../src/anchor-webhook.js';
 import { Anchorer } from '../src/anchorer.js';

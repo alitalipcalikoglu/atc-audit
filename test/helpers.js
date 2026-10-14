@@ -1,5 +1,5 @@
 import { generateKeyPairSync } from 'node:crypto';
-import { readServiceVersion } from '@atc-web/service-core/fastify';
+import { readServiceVersion } from '@atc-web/atc-service-core/fastify';
 import { AnchorSigner } from '../src/crypto/anchor-signer.js';
 import { Config } from '../src/config.js';
 import { Database } from '../src/db.js';
