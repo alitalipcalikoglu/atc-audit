@@ -40,7 +40,7 @@ npm run typecheck
 - **Source is the key.** Callers authenticate with `Authorization: Bearer <secret>` from `AUDIT_API_KEYS`; the key's id is recorded as `source`. A caller cannot write events under another service's name.
 - **Roles.** Keys are `write` (producers), `read` (dashboards, exporters) or `readwrite`.
 - **Hash chain.** `hash = SHA-256(prevHash + "\n" + canonical JSON of the event)`. Editing, removing or reordering a stored event breaks every later hash; `GET /v1/chain/verify` recomputes and reports the first broken position.
-- **Signed anchors (optional).** With `ANCHOR_PRIVATE_KEY_PATH` set, a periodic job signs the current chain head (Ed25519) and records it in `anchors`; `verify()` checks any anchor in range against both the recomputed hash and its signature. See "Chain anchors" below.
+- **Signed anchors (optional; on in the stack's setup, which generates `keys/anchor-private.pem`).** With `ANCHOR_PRIVATE_KEY_PATH` set, a periodic job signs the current chain head (Ed25519) and records it in `anchors`; `verify()` checks any anchor in range against both the recomputed hash and its signature. See "Chain anchors" below.
 - **Idempotent writes.** An optional client `id` (UUID) makes retries safe: the same `id` from the same source returns the stored event instead of a duplicate.
 - **Redaction.** Values under keys like `password`, `token`, `authorization`, `cardNumber` are replaced with `[REDACTED]` inside `meta` before hashing and storage (`REDACT_KEYS`).
 - **Retention without gaps.** `RETENTION_DAYS` purges only a prefix of the sequence and keeps a checkpoint hash, so the remaining chain still verifies.
