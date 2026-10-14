@@ -12,7 +12,7 @@ rcurl "$AUDIT/v1/stats?hours=24"
   "since": "2026-09-15T10:00:00.000Z",
   "total": 18422,
   "byOutcome": { "success": 17990, "failure": 401, "denied": 31 },
-  "bySource": [ { "source": "auth", "count": 9100 }, { "source": "shop-backend", "count": 9322 } ],
+  "bySource": [ { "source": "atc-auth", "count": 9100 }, { "source": "shop-backend", "count": 9322 } ],
   "topActions": [ { "action": "atc-auth.login", "count": 6200 }, { "action": "atc-auth.refresh", "count": 2800 }, "…" ],
   "topActors": [ { "type": "user", "id": "u7", "name": null, "count": 340 }, "…" ],
   "topFailures": [ { "action": "atc-auth.login", "count": 380 }, { "action": "payment.capture", "count": 21 } ]

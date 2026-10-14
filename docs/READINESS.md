@@ -75,7 +75,7 @@ rather than silently wrong, which is a useful property but not a substitute for 
 anchors are configured, `stack backup` includes the Ed25519 signing key pair (and the previous public
 key, during a rotation) in the same snapshot as the database, resolved from the real configured
 `ANCHOR_PRIVATE_KEY_PATH`/`ANCHOR_PREVIOUS_PUBLIC_KEY_PATH` — see README.md's "Chain anchors" and
-`stack/docs/BACKUP.md`'s "Anchor key backup semantics".
+`atc-stack/docs/BACKUP.md`'s "Anchor key backup semantics".
 
 ## Restore
 
@@ -95,7 +95,7 @@ restart does not reset anything `/metrics` reports.
 
 Fastify's default request logging (`requestIdHeader: 'x-request-id'`, so it already logs whichever
 id the caller — gateway, console, or a peer service — sent), plus `traceId`/`spanId` (see Tracing
-below). Redacts `authorization`. See [OBSERVABILITY.md](../../stack/docs/OBSERVABILITY.md) for the
+below). Redacts `authorization`. See [OBSERVABILITY.md](../../atc-stack/docs/OBSERVABILITY.md) for the
 target vocabulary this does not yet fully emit (`service`, `version`).
 
 ## Tracing

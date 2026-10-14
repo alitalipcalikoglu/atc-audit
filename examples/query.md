@@ -25,9 +25,9 @@ All filters combine with AND.
 
 | Parameter | Matches |
 |---|---|
-| `source` | Key id that wrote the event: `source=auth` |
+| `source` | Key id that wrote the event: `source=atc-auth` |
 | `action` | Exact: `action=atc-auth.login` |
-| `actionPrefix` | Everything under a namespace: `actionPrefix=auth.` (indexed range scan, not a LIKE) |
+| `actionPrefix` | Everything under a namespace: `actionPrefix=atc-auth.` (indexed range scan, not a LIKE) |
 | `outcome` | `success`, `failure`, `denied` |
 | `actorType`, `actorId` | Who did it |
 | `targetType`, `targetId` | What was affected |

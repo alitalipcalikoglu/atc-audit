@@ -11,7 +11,7 @@ import { Canonical } from '../chain.js';
 
 /**
  * Signs and verifies chain anchors with Ed25519 (`node:crypto`, no dependency needed — unlike
- * `auth`'s ES256/JWT, an anchor is a single detached signature, not a token format, so there is no
+ * `atc-auth`'s ES256/JWT, an anchor is a single detached signature, not a token format, so there is no
  * JOSE/JWK machinery to buy here). `keyId` (first 16 hex chars of the SPKI DER's SHA-256) names
  * which key produced a given anchor's signature, carried alongside it in the `anchors` table, so a
  * verifier — including one with no private key and no database, using only a published public key

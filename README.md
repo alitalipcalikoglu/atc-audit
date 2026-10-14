@@ -24,7 +24,7 @@ Production with Docker (mount the database directory):
 
 ```bash
 docker build -t atc-audit .
-docker run -p 3005:3005 -v audit-data:/data --env-file .env atc-audit
+docker run -p 3005:3005 -v atc-audit-data:/data --env-file .env atc-audit
 ```
 
 Tests and type check:
@@ -208,18 +208,18 @@ this hop, both logged as `traceId`/`spanId` via `@atc-web/atc-service-core`'s `r
 The one outbound call this service can make — `ANCHOR_WEBHOOK_URL`, when configured — does not
 carry a trace header either, since it posts a signed anchor record to an external, operator-configured
 target, not a request being proxied (proven by a security-regression test — see
-[OBSERVABILITY.md](../stack/docs/OBSERVABILITY.md)).
+[OBSERVABILITY.md](../atc-stack/docs/OBSERVABILITY.md)).
 `/metrics` is entirely database-derived — nothing here resets on restart.
 
 ## Backup / restore
 
 Back up the database file; the whole point of the chain is that a restore from an incomplete
 backup is detectable (`GET /v1/chain/verify` will report a gap) rather than silently wrong. Use
-`stack backup`/`stack restore` from the workspace root (see `stack/docs/UPGRADE.md`) to do this
+`stack backup`/`stack restore` from the workspace root (see `atc-stack/docs/UPGRADE.md`) to do this
 consistently alongside the rest of the stack — when anchors are configured (`ANCHOR_PRIVATE_KEY_PATH`
 set), `stack backup` includes the anchor signing key pair (and the previous public key, during a
 rotation) in the same snapshot as the database, resolved from the real configured path, the same way
-`auth` backs up its JWT keys (see `stack/docs/BACKUP.md`, "Anchor key backup semantics" — the exact
+`atc-auth` backs up its JWT keys (see `atc-stack/docs/BACKUP.md`, "Anchor key backup semantics" — the exact
 path is not assumed to be `keys/`, and a path pointing outside this service's own folder is
 deliberately excluded rather than followed). On every start, before applying a pending migration to
 an existing database, the service itself also snapshots the file to `DB_PATH.pre-v<N>-<timestamp>`
@@ -228,7 +228,7 @@ Losing the private key entirely (outside a `stack backup`/`stack restore` round-
 never backed up, or anchoring was only enabled after the fact) means no *new* anchor can ever be
 signed under that `keyId` again (generate a fresh pair and treat it as a rotation), though every
 anchor already written and verified stays valid. **A `stack backup` snapshot with anchoring
-configured contains real private key material — see `stack/docs/BACKUP.md`'s security note before
+configured contains real private key material — see `atc-stack/docs/BACKUP.md`'s security note before
 treating it as an ordinary data export.**
 
 **Rollback limitations:** none of the migrations are reversible; to roll back, restore the

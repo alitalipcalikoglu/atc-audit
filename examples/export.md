@@ -14,7 +14,7 @@ head -1 audit-2026-09.ndjson | jq .
 ## CSV
 
 ```bash
-rcurl "$AUDIT/v1/events/export?format=csv&source=auth" -o auth.csv
+rcurl "$AUDIT/v1/events/export?format=csv&source=atc-auth" -o auth.csv
 ```
 
 Columns: `seq,id,at,receivedAt,source,action,outcome,actorType,actorId,actorName,targetType,targetId,targetName,ip,userAgent,requestId,meta,prevHash,hash`. `meta` is the canonical JSON string. Cells that start with `=`, `+`, `-`, `@` are prefixed with `'` so the file cannot inject formulas when opened in a spreadsheet.

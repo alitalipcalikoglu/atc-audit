@@ -15,7 +15,7 @@ rcurl $AUDIT/metrics
 
 ```
 audit_events_total 1204411
-audit_events_by_source{source="auth"} 900120
+audit_events_by_source{source="atc-auth"} 900120
 audit_events_by_source{source="shop-backend"} 304291
 audit_events_received_last_hour 1811
 audit_oldest_event_age_seconds 31535990
@@ -46,7 +46,7 @@ pm2 reload audit
 
 ```bash
 docker build -t atc-audit .
-docker run -d -p 3005:3005 -v audit-data:/data --env-file .env atc-audit
+docker run -d -p 3005:3005 -v atc-audit-data:/data --env-file .env atc-audit
 ```
 
 ## Logs
