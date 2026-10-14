@@ -25,6 +25,8 @@
  * @property {ApiKey[]} apiKeys
  * @property {number} rateLimitMax
  * @property {number} retentionDays
+ * @property {{ threshold: number, windowMs: number }} deniedSpike  `denied` events per source in the window that raise ops.audit.denied_spike; threshold 0 = off.
+ * @property {{ url: string, apiKey: string, timeoutMs: number }|null} webhookOut  atc-webhook-out target for events; null = off.
  * @property {number} maxBatch
  * @property {number} metaMaxBytes
  * @property {string[]} redactKeys       Lower-case, normalised (no `_` or `-`).

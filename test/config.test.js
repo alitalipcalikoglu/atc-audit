@@ -50,3 +50,11 @@ test('Config: rejects bad input', () => {
   bad({ MAX_BATCH: '0' }, /must be >= 1/);
   bad({ TRUST_PROXY: 'yes' }, /true or false/);
 });
+
+test('Config: webhook-out target and denied-spike settings', () => {
+  const c = Config.fromEnv(testEnv());
+  assert.deepEqual([c.webhookOut, c.deniedSpike], [null, { threshold: 20, windowMs: 60_000 }]);
+  assert.equal(Config.fromEnv(testEnv({ WEBHOOK_OUT_URL: 'http://h:3009/', WEBHOOK_OUT_API_KEY: 'k' })).webhookOut?.url, 'http://h:3009');
+  assert.throws(() => Config.fromEnv(testEnv({ WEBHOOK_OUT_URL: 'http://h' })), ConfigError);
+  assert.equal(Config.fromEnv(testEnv({ DENIED_SPIKE_THRESHOLD: '0' })).deniedSpike.threshold, 0);
+});

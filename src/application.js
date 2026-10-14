@@ -5,7 +5,9 @@ import { AnchorWebhook } from './anchor-webhook.js';
 import { Anchorer } from './anchorer.js';
 import { Config } from './config.js';
 import { AnchorSigner } from './crypto/anchor-signer.js';
+import { DeniedSpike } from './denied-spike.js';
 import { Database } from './db.js';
+import { EventPublisher } from './events/event-publisher.js';
 import { AuditService } from './domain/audit-service.js';
 import { AuditApi } from './http/audit-api.js';
 import { Maintenance } from './maintenance.js';
@@ -26,11 +28,14 @@ export class Application {
     this.anchorSigner = config.anchorPrivateKeyPath
       ? AnchorSigner.fromFiles({ privateKeyPath: config.anchorPrivateKeyPath, previousPublicKeyPath: config.anchorPreviousPublicKeyPath })
       : null;
+    this.publisher = new EventPublisher({ source: 'atc-audit', target: config.webhookOut });
     this.service = new AuditService({
       events: this.events,
       redactor: new Redactor(config.redactKeys),
       options: { maxBatch: config.maxBatch, metaMaxBytes: config.metaMaxBytes, clockSkewMs: config.clockSkewSec * 1000, verifyMaxRows: config.verifyMaxRows },
       anchorSigner: this.anchorSigner,
+      spike: new DeniedSpike(config.deniedSpike),
+      publisher: this.publisher,
     });
     /** @type {import('fastify').FastifyInstance|null} */
     this.app = null;
@@ -57,9 +62,10 @@ export class Application {
 
   async start() {
     const { config } = this;
-    const api = new AuditApi({ config, service: this.service, events: this.events, db: this.db, anchorSigner: this.anchorSigner, version: this.version });
+    const api = new AuditApi({ config, service: this.service, events: this.events, publisher: this.publisher, db: this.db, anchorSigner: this.anchorSigner, version: this.version });
     const app = await api.build();
     this.app = app;
+    this.publisher.logger = app.log;
     this.maintenance = new Maintenance({ events: this.events, log: app.log.child({ component: 'maintenance' }), options: { retentionDays: config.retentionDays } });
     if (this.anchorSigner) {
       const webhook = config.anchorWebhookUrl
@@ -78,6 +84,7 @@ export class Application {
         () => this.maintenance?.stop(),
         () => this.anchorer?.stop(),
         () => this.app?.close(),
+        () => this.publisher.close(),
         () => this.db.close(),
       ],
     });

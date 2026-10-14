@@ -29,12 +29,16 @@ export class AuditService {
    * @param {import('../crypto/anchor-signer.js').AnchorSigner|null} [deps.anchorSigner] Only when
    *   configured (`ANCHOR_PRIVATE_KEY_PATH` set) does `verify()` also check anchors in range —
    *   without it, verification is exactly the Stage-2 hash-chain check, unchanged.
+   * @param {import('../denied-spike.js').DeniedSpike|null} [deps.spike]
+   * @param {{ publish: (type: string, data?: unknown) => boolean }} [deps.publisher]
    */
-  constructor({ events, redactor, options, anchorSigner = null }) {
+  constructor({ events, redactor, options, anchorSigner = null, spike = null, publisher }) {
     this.events = events;
     this.redactor = redactor;
     this.options = options;
     this.anchorSigner = anchorSigner;
+    this.spike = spike;
+    this.publisher = publisher ?? { publish: () => false };
   }
 
   /**
@@ -48,7 +52,11 @@ export class AuditService {
   ingest(source, inputs, now = Date.now()) {
     if (inputs.length > this.options.maxBatch) throw new AuditError('BATCH_TOO_LARGE', `at most ${this.options.maxBatch} events per request`, { max: this.options.maxBatch, got: inputs.length });
     const records = inputs.map((input, i) => this.#normalise(source, input, now, i));
-    return this.events.append(records);
+    const stored = this.events.append(records);
+    const denied = stored.filter((s) => !s.duplicate && s.row.outcome === 'denied').length;
+    const spike = this.spike?.observe(source, denied, now);
+    if (spike) this.publisher.publish('ops.audit.denied_spike', spike);
+    return stored;
   }
 
   /**

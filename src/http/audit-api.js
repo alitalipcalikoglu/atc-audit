@@ -28,11 +28,13 @@ export class AuditApi {
    * @param {import('../store/event-store.js').EventStore} deps.events
    * @param {import('../db.js').Database} deps.db
    * @param {import('../crypto/anchor-signer.js').AnchorSigner|null} [deps.anchorSigner]
+   * @param {import('../events/event-publisher.js').EventPublisher} [deps.publisher]
    * @param {import('../types.js').Logger} [deps.logger]
    * @param {string} deps.version
    */
-  constructor({ config, service, events, db, anchorSigner = null, logger, version }) {
+  constructor({ config, service, events, db, anchorSigner = null, publisher, logger, version }) {
     this.config = config;
+    this.publisher = publisher ?? null;
     this.service = service;
     this.events = events;
     this.db = db;
@@ -192,6 +194,7 @@ export class AuditApi {
         '# HELP audit_db_bytes Database size.',
         '# TYPE audit_db_bytes gauge',
         `audit_db_bytes ${this.db.sizeBytes()}`,
+        ...(this.publisher?.metricLines() ?? []),
         '# HELP audit_process_uptime_seconds Process uptime.',
         '# TYPE audit_process_uptime_seconds gauge',
         `audit_process_uptime_seconds ${process.uptime().toFixed(0)}`,

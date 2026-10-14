@@ -192,6 +192,10 @@ against itself; there is nowhere else to forward to. Every other service in the 
 authenticates with a `write`-role key from `AUDIT_API_KEYS` and posts its own write and security
 events here.
 
+## Events
+
+With `WEBHOOK_OUT_URL` and `WEBHOOK_OUT_API_KEY` set, the service publishes `ops.audit.denied_spike` when one source records `DENIED_SPIKE_THRESHOLD` (default 20) or more `denied` events inside `DENIED_SPIKE_WINDOW_SEC` (default 60). Best effort; see [examples/events.md](examples/events.md).
+
 ## Scaling model
 
 **B — single-node stateful.** One process owns the SQLite chain. The append path (`BEGIN IMMEDIATE`

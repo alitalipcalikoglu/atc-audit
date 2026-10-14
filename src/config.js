@@ -1,3 +1,4 @@
+import { EventPublisher } from './events/event-publisher.js';
 import { ConfigError, EnvReader, parseApiKeys, parseTarget } from '@atc-web/atc-service-core/config';
 
 /** @typedef {import('./types.js').ApiKey} ApiKey */
@@ -23,6 +24,8 @@ export class Config {
     this.apiKeys = v.apiKeys;
     this.rateLimitMax = v.rateLimitMax;
     this.retentionDays = v.retentionDays;
+    this.deniedSpike = v.deniedSpike;
+    this.webhookOut = v.webhookOut;
     this.maxBatch = v.maxBatch;
     this.metaMaxBytes = v.metaMaxBytes;
     this.redactKeys = v.redactKeys;
@@ -65,6 +68,8 @@ export class Config {
       apiKeys: Config.#parseApiKeys(r.required('AUDIT_API_KEYS')),
       rateLimitMax: r.integer('RATE_LIMIT_MAX', 1_200, { min: 1 }),
       retentionDays: r.integer('RETENTION_DAYS', 365, { min: 1 }),
+      deniedSpike: { threshold: r.integer('DENIED_SPIKE_THRESHOLD', 20, { min: 0, max: 1_000_000 }), windowMs: r.integer('DENIED_SPIKE_WINDOW_SEC', 60, { min: 5, max: 86_400 }) * 1000 },
+      webhookOut: EventPublisher.parseEnv(r, ConfigError),
       maxBatch: r.integer('MAX_BATCH', 500, { min: 1, max: 5_000 }),
       metaMaxBytes: r.integer('META_MAX_BYTES', 8_192, { min: 256, max: 1_048_576 }),
       redactKeys: Config.#parseRedactKeys(r.optional('REDACT_KEYS')),

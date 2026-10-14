@@ -14,6 +14,7 @@ Scenario-driven walkthroughs of every feature. Requests to `/v1/*` need `Authori
 | [API keys and roles](keys-and-roles.md) | Read, write and readwrite keys; one key per source |
 | [Retention](retention.md) | How old events are removed without breaking verification |
 | [Client integration](client-integration.md) | A small Node.js client with buffering, batching and retry |
+| [Events](events.md) | `ops.audit.denied_spike` through atc-webhook-out |
 | [Operations](operations.md) | Health, readiness, metrics, environment, PM2, Docker, backups |
 
 Set up once for the examples:

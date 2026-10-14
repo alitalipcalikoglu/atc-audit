@@ -67,7 +67,7 @@ export function record(o = {}) {
  * @param {Record<string, string>} [overrides]
  * @param {import('../src/crypto/anchor-signer.js').AnchorSigner|null} [anchorSigner]
  */
-export async function buildApp(overrides, anchorSigner = null) {
+export async function buildApp(overrides, anchorSigner = null, extra = {}) {
   const { AuditService } = await import('../src/domain/audit-service.js');
   const { AuditApi } = await import('../src/http/audit-api.js');
   const { Redactor } = await import('../src/redactor.js');
@@ -78,7 +78,7 @@ export async function buildApp(overrides, anchorSigner = null) {
   const service = new AuditService({
     events, redactor: new Redactor(config.redactKeys),
     options: { maxBatch: config.maxBatch, metaMaxBytes: config.metaMaxBytes, clockSkewMs: config.clockSkewSec * 1000, verifyMaxRows: config.verifyMaxRows },
-    anchorSigner,
+    anchorSigner, ...extra,
   });
   const app = await new AuditApi({ config, service, events, db, anchorSigner, version: readServiceVersion(import.meta.url) }).build();
   await app.ready();
