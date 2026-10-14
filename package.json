@@ -1,6 +1,6 @@
 {
   "name": "@atc-web/atc-audit",
-  "version": "1.18.0",
+  "version": "1.19.0",
   "private": true,
   "description": "Central append-only audit log: services push events over HTTP, the log keeps a tamper-evident hash chain, offers filtered queries, export and retention",
   "license": "MIT",
@@ -21,7 +21,7 @@
     "typecheck": "tsc -p jsconfig.json"
   },
   "dependencies": {
-    "@atc-web/atc-service-core": "github:alitalipcalikoglu/atc-service-core#v1.18.0",
+    "@atc-web/atc-service-core": "github:alitalipcalikoglu/atc-service-core#v1.19.0",
     "@fastify/rate-limit": "11.2.0",
     "fastify": "5.12.5"
   },
