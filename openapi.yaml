@@ -481,7 +481,7 @@ paths:
       operationId: atc-audit.anchors.list
       tags: [chain]
       summary: List signed chain anchors, newest first.
-      description: Keyset pagination: pass `nextCursor` back as `cursor`.
+      description: "Keyset pagination: pass `nextCursor` back as `cursor`."
       x-required-role: read
       parameters:
         - $ref: '#/components/parameters/AnchorsLimitParam'
