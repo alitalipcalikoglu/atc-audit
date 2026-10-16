@@ -324,5 +324,5 @@ test('GET /v1/chain/anchors: paginated, newest first', async (t) => {
   const body = res.json();
   assert.equal(body.items.length, 1);
   assert.equal(body.items[0].seq, 2, 'newest first');
-  assert.ok(body.nextBeforeSeq);
+  assert.ok(body.nextCursor);
 });

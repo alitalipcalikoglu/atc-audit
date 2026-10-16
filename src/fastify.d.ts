@@ -6,4 +6,8 @@ declare module 'fastify' {
     apiKeyId: string;
     apiKeyRole: import('./types.js').KeyRole;
   }
+  interface FastifyContextConfig {
+    /** Opt in to Idempotency-Key replay (core Idempotency); never on routes answering with secrets. */
+    idempotent?: boolean;
+  }
 }

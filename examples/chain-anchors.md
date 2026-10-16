@@ -39,7 +39,7 @@ rcurl "$AUDIT/v1/chain/anchors?limit=20"
 ```
 
 ```json
-{ "items": [ { "seq": 903, "...": "…" }, { "seq": 840, "...": "…" } ], "nextBeforeSeq": 840 }
+{ "items": [ { "seq": 903, "...": "…" }, { "seq": 840, "...": "…" } ], "nextCursor": "840" }
 ```
 
 ## Verification checks anchors automatically

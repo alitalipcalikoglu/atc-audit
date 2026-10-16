@@ -481,11 +481,11 @@ paths:
       operationId: atc-audit.anchors.list
       tags: [chain]
       summary: List signed chain anchors, newest first.
-      description: Keyset pagination via `beforeSeq`/`nextBeforeSeq`.
+      description: Keyset pagination: pass `nextCursor` back as `cursor`.
       x-required-role: read
       parameters:
         - $ref: '#/components/parameters/AnchorsLimitParam'
-        - $ref: '#/components/parameters/BeforeSeqParam'
+        - $ref: '#/components/parameters/CursorSeqParam'
       responses:
         '200':
           description: A page of anchors.
@@ -640,7 +640,7 @@ components:
       name: id
       in: path
       required: true
-      schema: { $ref: '#/components/schemas/Uuid' }
+      schema: { $ref: '#/components/schemas/EventId' }
     FromSeqParam:
       name: fromSeq
       in: query
@@ -661,10 +661,10 @@ components:
       in: query
       description: Page size, 1-200. Default 50.
       schema: { type: string, pattern: '^([1-9]|[1-9][0-9]|1[0-9][0-9]|200)$' }
-    BeforeSeqParam:
-      name: beforeSeq
+    CursorSeqParam:
+      name: cursor
       in: query
-      description: Keyset cursor from a previous page's `nextBeforeSeq`.
+      description: Opaque `nextCursor` from the previous page.
       schema: { type: string, pattern: '^[1-9][0-9]{0,15}$' }
 
   responses:
@@ -779,9 +779,14 @@ components:
         algorithm: { type: string, enum: [Ed25519] }
         publicKey: { type: string, description: SPKI PEM. }
 
-    Uuid:
+    EventId:
       type: string
-      format: uuid
+      pattern: '^evt_[0-9a-z]{6,12}[0-9a-f]{16}$'
+      description: The platform's one id format, assigned by this service.
+
+    ClientId:
+      type: string
+      pattern: '^[A-Za-z0-9._:-]{8,128}$'
 
     Action:
       type: string
@@ -817,9 +822,9 @@ components:
       required: [action]
       properties:
         id:
-          $ref: '#/components/schemas/Uuid'
+          $ref: '#/components/schemas/ClientId'
           description: >-
-            Caller-supplied idempotency key (`clientId`). A repeat for the same `source` returns
+            Caller-supplied idempotency key (`clientId`; core's AuditClient sends `aud_<time><random>`). A repeat for the same `source` returns
             the existing row instead of storing a new one.
         action: { $ref: '#/components/schemas/Action' }
         outcome: { $ref: '#/components/schemas/Outcome', default: success }
@@ -873,7 +878,7 @@ components:
         - prevHash
         - hash
       properties:
-        id: { $ref: '#/components/schemas/Uuid' }
+        id: { $ref: '#/components/schemas/EventId' }
         seq: { type: integer, description: Monotonic hash-chain sequence number. }
         clientId:
           oneOf: [{ type: string }, { type: 'null' }]
@@ -931,7 +936,7 @@ components:
             type: object
             required: [id, seq, clientId, duplicate]
             properties:
-              id: { $ref: '#/components/schemas/Uuid' }
+              id: { $ref: '#/components/schemas/EventId' }
               seq: { type: integer }
               clientId:
                 oneOf: [{ type: string }, { type: 'null' }]
@@ -1004,13 +1009,13 @@ components:
 
     AnchorList:
       type: object
-      required: [items, nextBeforeSeq]
+      required: [items, nextCursor]
       properties:
         items:
           type: array
           items: { $ref: '#/components/schemas/Anchor' }
-        nextBeforeSeq:
-          oneOf: [{ type: integer }, { type: 'null' }]
+        nextCursor:
+          type: [string, 'null']
 
     Stats:
       type: object

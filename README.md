@@ -41,7 +41,8 @@ npm run typecheck
 - **Roles.** Keys are `write` (producers), `read` (dashboards, exporters) or `readwrite`.
 - **Hash chain.** `hash = SHA-256(prevHash + "\n" + canonical JSON of the event)`. Editing, removing or reordering a stored event breaks every later hash; `GET /v1/chain/verify` recomputes and reports the first broken position.
 - **Signed anchors (optional; on in the stack's setup, which generates `keys/anchor-private.pem`).** With `ANCHOR_PRIVATE_KEY_PATH` set, a periodic job signs the current chain head (Ed25519) and records it in `anchors`; `verify()` checks any anchor in range against both the recomputed hash and its signature. See "Chain anchors" below.
-- **Idempotent writes.** An optional client `id` (UUID) makes retries safe: the same `id` from the same source returns the stored event instead of a duplicate.
+- **Ids and lists.** Stored events are `evt_<time><random>` (the platform's one id format) and carry `seq` in the hash chain; lists answer `{ items, nextCursor }`.
+- **Idempotent writes.** An optional client `id` (8-128 characters; core's AuditClient sends `aud_<time><random>`) makes retries safe: the same `id` from the same source returns the stored event instead of a duplicate.
 - **Redaction.** Values under keys like `password`, `token`, `authorization`, `cardNumber` are replaced with `[REDACTED]` inside `meta` before hashing and storage (`REDACT_KEYS`).
 - **Retention without gaps.** `RETENTION_DAYS` purges only a prefix of the sequence and keeps a checkpoint hash, so the remaining chain still verifies.
 
@@ -67,7 +68,7 @@ Errors are JSON: `{ "error": { "code", "message", "details?" } }`.
 | GET | `/v1/events/export` | read | Same filters, oldest first, streamed as `format=ndjson` (default) or `csv`, capped by `EXPORT_MAX_ROWS`. |
 | GET | `/v1/chain/head` | read | `{ seq, hash }` of the newest event. |
 | GET | `/v1/chain/verify` | read | Recompute the chain over `fromSeq..toSeq` (default all, ≤ `VERIFY_MAX_ROWS`); also checks any anchor in range, if anchors are configured. |
-| GET | `/v1/chain/anchors` | read | Anchors, newest first (`limit` ≤ 200, `beforeSeq`). |
+| GET | `/v1/chain/anchors` | read | Anchors, newest first (`limit` ≤ 200, `cursor`; `{ items, nextCursor }`). |
 | GET | `/v1/chain/anchors/latest` | read | Most recent anchor; `404` if none written yet. |
 | GET | `/.well-known/audit-anchor-key` | none | Current (and previous, during rotation) Ed25519 public key, PEM — verify an anchor with no database and no private key. `404` when anchors are not configured. |
 | GET | `/v1/stats` | read | Window aggregates for `hours` (default 24): outcomes, sources, top actions, actors, failures. |
@@ -82,7 +83,7 @@ await fetch(`${process.env.AUDIT_URL}/v1/events`, {
   method: 'POST',
   headers: { authorization: `Bearer ${process.env.AUDIT_API_KEY}`, 'content-type': 'application/json' },
   body: JSON.stringify({
-    id: crypto.randomUUID(),
+    id: `aud_${Date.now().toString(36)}${crypto.randomBytes(8).toString('hex')}`,
     action: 'user.disable',
     actor: { type: 'admin', id: adminId },
     target: { type: 'user', id: userId },

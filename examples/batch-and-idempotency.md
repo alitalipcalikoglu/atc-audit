@@ -7,9 +7,9 @@ Up to `MAX_BATCH` (default 500) events in one request, stored in order inside on
 ```bash
 wcurl -X POST $AUDIT/v1/events/batch -d '{
   "events": [
-    { "id": "0b1f6c9a-9a2f-4d4a-8f0e-1c4d2e3f4a51", "action": "cart.add",    "actor": { "type": "user", "id": "u7" }, "target": { "type": "product", "id": "p1" } },
-    { "id": "0b1f6c9a-9a2f-4d4a-8f0e-1c4d2e3f4a52", "action": "cart.remove", "actor": { "type": "user", "id": "u7" }, "target": { "type": "product", "id": "p1" } },
-    { "id": "0b1f6c9a-9a2f-4d4a-8f0e-1c4d2e3f4a53", "action": "order.create","actor": { "type": "user", "id": "u7" }, "target": { "type": "order", "id": "o9" } }
+    { "id": "aud_mgx1k2ab0b1f6c9a9a2f4d41", "action": "cart.add",    "actor": { "type": "user", "id": "u7" }, "target": { "type": "product", "id": "p1" } },
+    { "id": "aud_mgx1k2ab0b1f6c9a9a2f4d42", "action": "cart.remove", "actor": { "type": "user", "id": "u7" }, "target": { "type": "product", "id": "p1" } },
+    { "id": "aud_mgx1k2ab0b1f6c9a9a2f4d43", "action": "order.create","actor": { "type": "user", "id": "u7" }, "target": { "type": "order", "id": "o9" } }
   ]
 }'
 ```
@@ -30,12 +30,12 @@ One invalid event fails the whole request with `VALIDATION_FAILED` and the index
 
 ## Idempotency
 
-Networks fail after the server committed but before the client read the response. Give every event a client-generated UUID in `id`; a retry with the same `id` from the same source returns the already stored event instead of a second copy.
+Networks fail after the server committed but before the client read the response. Give every event a client-generated id in `id` (8-128 characters of `A-Z a-z 0-9 . _ : -`; core's AuditClient sends `aud_<time><random>`); a retry with the same `id` from the same source returns the already stored event instead of a second copy.
 
 ```bash
-wcurl -X POST $AUDIT/v1/events -d '{"id":"7e2d3c1b-0000-4000-8000-000000000001","action":"payment.capture","target":{"type":"payment","id":"pay_1"}}'
+wcurl -X POST $AUDIT/v1/events -d '{"id":"aud_mgx1k3cd7e2d3c1b00000001","action":"payment.capture","target":{"type":"payment","id":"pay_1"}}'
 # 201 {"event":{...,"seq":904},"duplicate":false}
-wcurl -X POST $AUDIT/v1/events -d '{"id":"7e2d3c1b-0000-4000-8000-000000000001","action":"payment.capture","target":{"type":"payment","id":"pay_1"}}'
+wcurl -X POST $AUDIT/v1/events -d '{"id":"aud_mgx1k3cd7e2d3c1b00000001","action":"payment.capture","target":{"type":"payment","id":"pay_1"}}'
 # 200 {"event":{...,"seq":904},"duplicate":true}
 ```
 

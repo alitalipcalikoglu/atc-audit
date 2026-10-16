@@ -1,6 +1,9 @@
+import { Ids } from '@atc-web/atc-service-core/ids';
 /** JSON Schemas for the HTTP surface. */
 export class Schemas {
-  static uuid = { type: 'string', format: 'uuid' };
+  static eventId = { type: 'string', pattern: Ids.pattern('evt') };
+  /** The producer's own id for its event (core AuditClient sends `aud_…`); it deduplicates repeats per source. */
+  static clientId = { type: 'string', pattern: '^[A-Za-z0-9._:-]{8,128}$' };
   /** Dotted, lower-case: `atc-auth.login`, `order.item.remove`. */
   static action = { type: 'string', pattern: '^[a-z0-9][a-z0-9-]*(\\.[a-z0-9_-]+){1,5}$', maxLength: 120 };
   static outcome = { type: 'string', enum: ['success', 'failure', 'denied'] };
@@ -16,7 +19,7 @@ export class Schemas {
     additionalProperties: false,
     required: ['action'],
     properties: {
-      id: Schemas.uuid,
+      id: Schemas.clientId,
       action: Schemas.action,
       outcome: Schemas.outcome,
       actor: Schemas.party,
@@ -34,7 +37,7 @@ export class Schemas {
     properties: { events: { type: 'array', minItems: 1, maxItems: 5_000, items: Schemas.event } },
   };
 
-  static idParams = { type: 'object', properties: { id: Schemas.uuid }, required: ['id'] };
+  static idParams = { type: 'object', properties: { id: Schemas.eventId }, required: ['id'] };
 
   static filter = {
     source: { type: 'string', pattern: '^[A-Za-z0-9_-]{1,64}$' },
@@ -73,6 +76,6 @@ export class Schemas {
 
   static anchorsQuery = {
     type: 'object', additionalProperties: false,
-    properties: { limit: { type: 'string', pattern: '^([1-9]|[1-9][0-9]|1[0-9][0-9]|200)$' }, beforeSeq: { type: 'string', pattern: '^[1-9][0-9]{0,15}$' } },
+    properties: { limit: { type: 'string', pattern: '^([1-9]|[1-9][0-9]|1[0-9][0-9]|200)$' }, cursor: { type: 'string', pattern: '^[1-9][0-9]{0,15}$' } },
   };
 }

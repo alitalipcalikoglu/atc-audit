@@ -3,11 +3,11 @@
 A recording call must never slow down or fail the business request. Buffer events in memory, flush in batches, retry with idempotent ids, and drop with a log line if the audit service stays unreachable.
 
 ```js
-import { randomUUID } from 'node:crypto';
+import { randomBytes } from 'node:crypto';
 
 /**
  * Minimal audit client: buffers events, flushes as batches, retries with backoff.
- * Every event gets a UUID so retries after a lost response never duplicate.
+ * Every event gets an id (`aud_<time><random>`) so retries after a lost response never duplicate.
  */
 export class AuditClient {
   static MAX_BUFFER = 5_000;
@@ -30,7 +30,7 @@ export class AuditClient {
       this.log.warn('audit buffer full, dropping oldest event');
       this.buffer.shift();
     }
-    this.buffer.push({ id: randomUUID(), at: new Date().toISOString(), ...e });
+    this.buffer.push({ id: `aud_${Date.now().toString(36)}${randomBytes(8).toString('hex')}`, at: new Date().toISOString(), ...e });
   }
 
   async flush() {

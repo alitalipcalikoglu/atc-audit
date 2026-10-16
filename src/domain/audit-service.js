@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { Ids } from '@atc-web/atc-service-core/ids';
 import { isIP } from 'node:net';
 import { Canonical, HashChain } from '../chain.js';
 import { AuditError } from './errors.js';
@@ -82,7 +82,7 @@ export class AuditService {
       if (bytes > this.options.metaMaxBytes) throw new AuditError('META_TOO_LARGE', `events[${index}].meta is ${bytes} bytes, limit ${this.options.metaMaxBytes}`, { index, bytes, max: this.options.metaMaxBytes });
     }
     return {
-      id: randomUUID(),
+      id: Ids.create('evt'),
       clientId: e.id ?? null,
       source,
       action: e.action,

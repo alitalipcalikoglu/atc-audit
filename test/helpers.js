@@ -1,3 +1,4 @@
+import { Ids } from '@atc-web/atc-service-core/ids';
 import { generateKeyPairSync } from 'node:crypto';
 import { readServiceVersion } from '@atc-web/atc-service-core/fastify';
 import { AnchorSigner } from '../src/crypto/anchor-signer.js';
@@ -46,7 +47,7 @@ export function testAnchorSigner({ withPrevious = false } = {}) {
 export function record(o = {}) {
   const now = o.receivedAt ?? Date.now();
   return {
-    id: o.id ?? crypto.randomUUID(),
+    id: o.id ?? Ids.create('aud'),
     clientId: o.clientId ?? null,
     source: o.source ?? 'shop',
     action: o.action ?? 'order.create',

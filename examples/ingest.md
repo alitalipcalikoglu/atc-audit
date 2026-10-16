@@ -47,7 +47,7 @@ wcurl -X POST $AUDIT/v1/events -d '{
 | `requestId` | Your request or trace id; lets you join audit events with application logs. |
 | `meta` | Any JSON object, stored as canonical JSON, at most `META_MAX_BYTES` (8 KiB) after redaction. |
 | `at` | ISO 8601. When the action happened. Omit to use the time of receipt. Up to `CLOCK_SKEW_SEC` in the future is tolerated; further is rejected with `TIMESTAMP_INVALID`. |
-| `id` | Optional UUID for idempotency, see [batches and idempotency](batch-and-idempotency.md). |
+| `id` | Optional client id (8-128 characters) for idempotency, see [batches and idempotency](batch-and-idempotency.md). |
 
 ## What the service adds
 

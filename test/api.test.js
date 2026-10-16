@@ -34,7 +34,7 @@ test('API: ingest single event, source from key, redaction, idempotency', async 
   const { app } = await buildApp();
   t.after(() => app.close());
   const body = {
-    id: '6f1c7d2e-1111-4222-8333-444455556666',
+    id: 'aud_mgx1k2ab1111222233334444',
     action: 'atc-auth.login',
     outcome: 'failure',
     actor: { type: 'user', id: 'u1', name: 'Ada' },
@@ -72,7 +72,7 @@ test('API: ingest single event, source from key, redaction, idempotency', async 
   const get = await app.inject({ url: `/v1/events/${event.id}`, headers: bearer(READ_KEY) });
   assert.equal(get.statusCode, 200);
   assert.deepEqual(json(get).event, event);
-  assert.equal((await app.inject({ url: '/v1/events/00000000-0000-4000-8000-000000000000', headers: bearer(READ_KEY) })).statusCode, 404);
+  assert.equal((await app.inject({ url: '/v1/events/evt_mgx1k2ab0000000000000000', headers: bearer(READ_KEY) })).statusCode, 404);
 });
 
 test('API: validation and limits', async (t) => {
@@ -105,7 +105,7 @@ test('API: batch, list with filters and cursor, export', async (t) => {
   t.after(() => app.close());
   const events = [];
   for (let i = 0; i < 5; i++) {
-    events.push({ id: `00000000-0000-4000-8000-00000000000${i}`, action: i < 3 ? 'atc-auth.login' : 'order.create', outcome: i === 1 ? 'failure' : 'success', actor: { type: 'user', id: `u${i % 2}` }, at: new Date(1_700_000_000_000 + i * 1000).toISOString() });
+    events.push({ id: `aud_mgx1k2ab000000000000000${i}`, action: i < 3 ? 'atc-auth.login' : 'order.create', outcome: i === 1 ? 'failure' : 'success', actor: { type: 'user', id: `u${i % 2}` }, at: new Date(1_700_000_000_000 + i * 1000).toISOString() });
   }
   events.push({ ...events[0] }); // duplicate inside the batch
   const batch = await app.inject({ method: 'POST', url: '/v1/events/batch', headers: bearer(RW_KEY), payload: { events } });
@@ -145,7 +145,7 @@ test('API: batch, list with filters and cursor, export', async (t) => {
   const rows = csv.body.trim().split('\n');
   assert.equal(rows.length, 2);
   assert.ok(rows[0].startsWith('seq,id,at,receivedAt,source,action,outcome'));
-  assert.match(rows[1], /^2,[0-9a-f-]{36},2023-11-14T22:13:21\.000Z,.*,shop,atc-auth\.login,failure,user,u1,,/);
+  assert.match(rows[1], /^2,evt_[0-9a-z]{6,12}[0-9a-f]{16},2023-11-14T22:13:21\.000Z,.*,shop,atc-auth\.login,failure,user,u1,,/);
 });
 
 test('API: chain head, verify, tamper detection', async (t) => {

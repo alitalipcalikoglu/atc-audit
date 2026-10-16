@@ -147,11 +147,12 @@ export class AuditApi {
     });
 
     api.get('/chain/anchors', { ...read, schema: { querystring: Schemas.anchorsQuery } }, async (request) => {
-      const q = /** @type {{ limit?: string, beforeSeq?: string }} */ (request.query);
+      const q = /** @type {{ limit?: string, cursor?: string }} */ (request.query);
       const limit = q.limit ? Number(q.limit) : 50;
-      const rows = this.events.anchorsList({ limit: limit + 1, beforeSeq: q.beforeSeq ? Number(q.beforeSeq) : undefined });
+      const rows = this.events.anchorsList({ limit: limit + 1, beforeSeq: q.cursor ? Number(q.cursor) : undefined });
       const items = rows.slice(0, limit);
-      return { items: items.map(Views.anchor), nextBeforeSeq: rows.length > limit ? items.at(-1)?.seq ?? null : null };
+      const last = items.at(-1);
+      return { items: items.map(Views.anchor), nextCursor: rows.length > limit && last ? String(last.seq) : null };
     });
 
     api.get('/chain/anchors/latest', read, async (_request, reply) => {
