@@ -8,10 +8,15 @@ export, and retention with a checkpoint so a pruned chain stays independently ve
 
 ## Dependencies
 
-None required. Every other service calls *this* one; audit's only optional outbound call is
-`ANCHOR_WEBHOOK_URL` (best-effort external push of a signed anchor — see "Chain anchors" in
-README.md), which is off unless explicitly configured and never gates any request this service
-serves.
+None required. Every other service calls *this* one. Optional outbound calls, both off unless
+configured and never gating a request this service serves:
+
+- `ANCHOR_WEBHOOK_URL`: best-effort external push of a signed anchor (see "Chain anchors" in
+  README.md).
+- `atc-webhook-out` (`WEBHOOK_OUT_URL` + `WEBHOOK_OUT_API_KEY`, a publish-role key): optional,
+  both-or-neither. Only `ops.audit.denied_spike` (`DENIED_SPIKE_THRESHOLD` denied events within `DENIED_SPIKE_WINDOW_SEC`) is published best effort from a bounded in-memory queue (500
+  events, three retries, an idempotency key each) in the background; the request path never waits
+  on it, and events still queued at a restart are lost (atc-stack `docs/EVENTS.md`).
 
 ## Persistence
 
